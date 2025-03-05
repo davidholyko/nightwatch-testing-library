@@ -15,9 +15,20 @@ const SIMMERJS = fs.readFileSync(require.resolve('simmerjs/dist/simmer.js')).toS
 let _config = null;
 
 function injectNWTL(browser) {
-    browser.execute(DOM_TESTING_LIBRARY_UMD);
+    const shouldInject = browser.execute(function () {
+      return {
+        domTestingLibrary: !window.TestingLibraryDom,
+        simmer: !window.Simmer,
+      }
+    });
 
-    browser.execute(SIMMERJS);
+    if (shouldInject.domTestingLibrary) {
+      browser.execute(DOM_TESTING_LIBRARY_UMD);
+    }
+
+    if (shouldInject.simmer) {
+      browser.execute(SIMMERJS);
+    }
 
     if (_config) {
         // eslint-disable-next-line no-shadow
